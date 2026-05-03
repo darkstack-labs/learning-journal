@@ -1,120 +1,412 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>~/learning-journal</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #0d1117; color: #c9d1d9; font-family: monospace; display: flex; height: 100vh; }
-    .sidebar { width: 250px; background: #010409; border-right: 1px solid #21262d; display: flex; flex-direction: column; }
-    .sb-top { padding: 16px; border-bottom: 1px solid #21262d; }
-    .sb-logo { color: #58a6ff; font-size: 14px; }
-    .sb-sub { color: #484f58; font-size: 11px; margin-top: 4px; }
-    .streak { background: #0d1117; border: 1px solid #21262d; border-radius: 6px; padding: 8px; margin-top: 10px; display: flex; align-items: center; gap: 10px; }
-    .streak-n { color: #f78166; font-size: 20px; font-weight: bold; }
-    .streak-l { color: #484f58; font-size: 10px; }
-    .new-btn { margin: 10px 16px; padding: 8px; background: transparent; border: 1px solid #388bfd; color: #58a6ff; border-radius: 6px; cursor: pointer; font-family: monospace; font-size: 12px; width: calc(100% - 32px); }
-    .new-btn:hover { background: #1f2d4a; }
-    .sb-list { flex: 1; overflow-y: auto; padding: 8px; }
-    .sb-item { padding: 10px; border-radius: 6px; cursor: pointer; margin-bottom: 4px; border: 1px solid transparent; }
-    .sb-item:hover { background: #161b22; }
-    .sb-item.active { background: #161b22; border-color: #30363d; }
-    .si-date { font-size: 10px; color: #484f58; }
-    .si-title { font-size: 12px; color: #c9d1d9; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .si-tier { font-size: 10px; color: #388bfd; margin-top: 2px; }
-    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .toolbar { padding: 10px 20px; border-bottom: 1px solid #21262d; display: flex; align-items: center; justify-content: space-between; }
-    .tier-sel { background: #161b22; border: 1px solid #30363d; color: #58a6ff; font-family: monospace; font-size: 11px; padding: 4px 8px; border-radius: 6px; }
-    .t-date { color: #484f58; font-size: 11px; }
-    .del-btn { background: transparent; border: 1px solid #30363d; color: #f85149; font-family: monospace; font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
-    .del-btn:hover { background: #2d1113; }
-    .content { flex: 1; overflow-y: auto; padding: 24px 32px; }
-    .note-title { background: transparent; border: none; outline: none; color: #e6edf3; font-size: 22px; font-family: monospace; width: 100%; margin-bottom: 20px; }
-    .note-title::placeholder { color: #30363d; }
-    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .stat { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 12px; text-align: center; }
-    .stat-n { font-size: 22px; color: #e6edf3; }
-    .stat-l { font-size: 10px; color: #484f58; margin-top: 2px; }
-    .prog-label { display: flex; justify-content: space-between; font-size: 10px; color: #484f58; margin-bottom: 6px; }
-    .prog-track { height: 4px; background: #21262d; border-radius: 2px; margin-bottom: 20px; }
-    .prog-fill { height: 100%; background: linear-gradient(90deg, #388bfd, #58a6ff); border-radius: 2px; transition: width .4s; }
-    .sec { margin-bottom: 18px; }
-    .sec-label { font-size: 10px; color: #484f58; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-    textarea { width: 100%; background: #161b22; border: 1px solid #21262d; border-radius: 6px; padding: 10px 12px; color: #c9d1d9; font-family: monospace; font-size: 12px; resize: none; line-height: 1.7; min-height: 65px; }
-    textarea:focus { outline: none; border-color: #388bfd; }
-    textarea::placeholder { color: #30363d; }
-    .cmd-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
-    .cmd-tag { background: #161b22; border: 1px solid #30363d; color: #7ee787; font-size: 11px; padding: 2px 8px; border-radius: 4px; }
-    .divider { height: 1px; background: #21262d; margin: 16px 0; }
-    .mood-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .mood-btn { background: transparent; border: 1px solid #21262d; color: #8b949e; font-family: monospace; font-size: 11px; padding: 5px 12px; border-radius: 6px; cursor: pointer; }
-    .mood-btn:hover { border-color: #388bfd; color: #58a6ff; }
-    .mood-btn.on { background: #1f2d4a; border-color: #388bfd; color: #58a6ff; }
-    .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #30363d; gap: 10px; }
-    .toast { position: fixed; bottom: 20px; right: 20px; background: #1f2d4a; color: #58a6ff; border: 1px solid #388bfd; padding: 8px 16px; border-radius: 6px; font-size: 12px; opacity: 0; transition: opacity .3s; pointer-events: none; }
-    .toast.show { opacity: 1; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sarvagya — Learning Journal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--text3:#484f58;--blue:#58a6ff;--green:#7ee787;--purple:#a371f7;--orange:#ffa657;--red:#f85149}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{background:#010409;border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.sb-brand{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.sb-name{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.02em}
+.sb-tag{font-size:11px;color:var(--text3);margin-top:2px;font-family:monospace}
+.sb-streak{margin:12px 0 0;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px}
+.streak-fire{font-size:22px}
+.streak-n{font-size:22px;font-weight:700;color:#f78166;line-height:1}
+.streak-l{font-size:10px;color:var(--text3);margin-top:2px}
+.streak-msg{font-size:11px;color:var(--green);margin-left:auto}
+.nav{padding:12px 8px;flex:1;overflow-y:auto}
+.nav-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:8px 8px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text2);border:1px solid transparent;margin-bottom:1px}
+.nav-item:hover{background:var(--bg2);color:var(--text)}
+.nav-item.active{background:var(--bg2);border-color:var(--border);color:var(--text)}
+.nav-icon{font-size:14px;width:18px;text-align:center}
+.new-entry-btn{margin:0 12px 16px;padding:9px;background:transparent;border:1px solid var(--blue);color:var(--blue);border-radius:8px;cursor:pointer;font-size:12px;font-family:monospace;letter-spacing:.03em;transition:background .15s}
+.new-entry-btn:hover{background:#1f2d4a}
+
+/* MAIN */
+.main{display:flex;flex-direction:column;overflow:hidden}
+
+/* DASHBOARD VIEW */
+.dashboard{padding:28px 32px;overflow-y:auto;flex:1}
+.page-title{font-size:22px;font-weight:600;color:var(--text);margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px}
+.kpi-n{font-size:28px;font-weight:700;color:var(--text);line-height:1}
+.kpi-l{font-size:11px;color:var(--text2);margin-top:4px}
+.kpi-change{font-size:11px;margin-top:8px;color:var(--green)}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px}
+.chart-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.chart-sub{font-size:11px;color:var(--text3);margin-bottom:16px}
+.chart-wrap{position:relative;height:180px}
+.roadmap-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px}
+.roadmap-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:16px}
+.tier-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.tier-name{font-size:11px;color:var(--text2);width:120px;flex-shrink:0}
+.tier-track{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.tier-fill{height:100%;border-radius:3px;transition:width .5s}
+.tier-pct{font-size:11px;color:var(--text3);width:32px;text-align:right;flex-shrink:0}
+.calendar-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px}
+.cal-grid{display:flex;gap:3px;flex-wrap:wrap;margin-top:12px}
+.cal-day{width:14px;height:14px;border-radius:3px;background:var(--bg3)}
+.cal-day.done{background:var(--green)}
+.cal-day.today{background:var(--blue)}
+
+/* JOURNAL VIEW */
+.journal-view{display:grid;grid-template-columns:240px 1fr;flex:1;overflow:hidden}
+.entry-list{border-right:1px solid var(--border);overflow-y:auto;padding:8px}
+.entry-item{padding:10px;border-radius:6px;cursor:pointer;margin-bottom:2px;border:1px solid transparent}
+.entry-item:hover{background:var(--bg2)}
+.entry-item.active{background:var(--bg2);border-color:var(--border)}
+.ei-date{font-size:10px;color:var(--text3)}
+.ei-title{font-size:12px;color:var(--text);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ei-tier{font-size:10px;color:var(--blue);margin-top:2px}
+.entry-editor{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.editor-toolbar{padding:10px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.tier-sel{background:var(--bg2);border:1px solid var(--border);color:var(--blue);font-size:11px;padding:4px 8px;border-radius:6px;font-family:monospace}
+.del-btn{background:transparent;border:1px solid var(--border);color:var(--red);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer}
+.del-btn:hover{background:#2d1113;border-color:var(--red)}
+.editor-content{flex:1;overflow-y:auto;padding:24px 28px}
+.note-title-input{background:transparent;border:none;outline:none;color:var(--text);font-size:20px;font-weight:600;width:100%;margin-bottom:20px;font-family:inherit}
+.note-title-input::placeholder{color:var(--text3)}
+.sec{margin-bottom:16px}
+.sec-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:13px;resize:none;line-height:1.7;min-height:65px}
+textarea:focus{outline:none;border-color:var(--blue)}
+textarea::placeholder{color:var(--text3)}
+.cmd-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.cmd-tag{background:var(--bg2);border:1px solid var(--border);color:var(--green);font-size:11px;padding:2px 8px;border-radius:4px;font-family:monospace}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.mood-row{display:flex;gap:6px;flex-wrap:wrap}
+.mood-btn{background:transparent;border:1px solid var(--border);color:var(--text2);font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer}
+.mood-btn:hover{border-color:var(--blue);color:var(--blue)}
+.mood-btn.on{background:#1f2d4a;border-color:var(--blue);color:var(--blue)}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text3);gap:8px;font-size:13px}
+
+.toast{position:fixed;bottom:20px;right:20px;background:#1f2d4a;color:var(--blue);border:1px solid var(--blue);padding:8px 16px;border-radius:8px;font-size:12px;font-family:monospace;opacity:0;transition:opacity .3s;pointer-events:none;z-index:100}
+.toast.show{opacity:1}
+.hidden{display:none}
+</style>
 </head>
 <body>
+<div class="app">
+
+<!-- SIDEBAR -->
 <div class="sidebar">
-  <div class="sb-top">
-    <div class="sb-logo">~/learning-journal</div>
-    <div class="sb-sub">0 → 0.1% roadmap</div>
-    <div class="streak">
+  <div class="sb-brand">
+    <div class="sb-name">Sarvagya</div>
+    <div class="sb-tag">0 → 0.1% roadmap</div>
+    <div class="sb-streak">
+      <div class="streak-fire">🔥</div>
       <div>
         <div class="streak-n" id="streak-n">0</div>
         <div class="streak-l">day streak</div>
       </div>
-      <div id="streak-msg" style="font-size:11px;color:#7ee787">start today</div>
+      <div class="streak-msg" id="streak-msg">start today</div>
     </div>
-    <button class="new-btn" onclick="newEntry()">+ new entry</button>
   </div>
-  <div class="sb-list" id="sb-list"></div>
+  <div class="nav">
+    <div class="nav-label">Menu</div>
+    <div class="nav-item active" id="nav-dash" onclick="showView('dashboard')">
+      <span class="nav-icon">▦</span> Dashboard
+    </div>
+    <div class="nav-item" id="nav-journal" onclick="showView('journal')">
+      <span class="nav-icon">✎</span> Journal
+    </div>
+    <div class="nav-label" style="margin-top:8px">Entries</div>
+    <div id="nav-entries"></div>
+  </div>
+  <button class="new-entry-btn" onclick="newEntry()">+ new entry</button>
 </div>
+
+<!-- MAIN -->
 <div class="main">
-  <div class="toolbar">
-    <div style="display:flex;align-items:center;gap:10px">
-      <select class="tier-sel" id="tier-sel" onchange="updField('tier',this.value)">
-        <option>T0 — W0: dev setup</option>
-        <option>T1 — W1: python basics</option>
-        <option>T1 — W2: data structures</option>
-        <option>T1 — W3: OOP & classes</option>
-        <option>T1 — W4: async python</option>
-        <option>T2 — W7: FastAPI</option>
-        <option>T3 — W11: prompting</option>
-        <option>T4 — W16: RAG</option>
-        <option>T5 — W21: fine-tuning</option>
-        <option>T6 — W24: agents</option>
-        <option>T7 — W31: shipping</option>
-      </select>
-      <span class="t-date" id="t-date"></span>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="view-dashboard">
+    <div class="page-title">Good day, Sarvagya 👋</div>
+    <div class="page-sub" id="dash-sub">Here's your learning progress</div>
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-n" id="kpi-days">0</div>
+        <div class="kpi-l">Days logged</div>
+        <div class="kpi-change" id="kpi-days-c"></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-n" id="kpi-cmds">0</div>
+        <div class="kpi-l">Commands learned</div>
+        <div class="kpi-change">total so far</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-n" id="kpi-streak">0</div>
+        <div class="kpi-l">Current streak</div>
+        <div class="kpi-change" id="kpi-streak-c"></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-n" id="kpi-prog">0%</div>
+        <div class="kpi-l">Roadmap done</div>
+        <div class="kpi-change">of 78 weeks</div>
+      </div>
     </div>
-    <button class="del-btn" onclick="delEntry()">rm entry</button>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Weekly activity</div>
+        <div class="chart-sub">Entries logged per week</div>
+        <div class="chart-wrap"><canvas id="chart-activity"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Energy levels</div>
+        <div class="chart-sub">How you felt each session</div>
+        <div class="chart-wrap"><canvas id="chart-mood"></canvas></div>
+      </div>
+    </div>
+
+    <div class="roadmap-card">
+      <div class="roadmap-title">Roadmap progress by tier</div>
+      <div id="tier-bars"></div>
+    </div>
+
+    <div class="calendar-card">
+      <div class="chart-title">Activity calendar</div>
+      <div class="chart-sub" style="margin-top:4px">Last 60 days — green = logged, blue = today</div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
   </div>
-  <div class="content" id="content">
-    <div class="empty"><div style="font-size:40px">{ }</div><div>create a new entry to start</div></div>
+
+  <!-- JOURNAL -->
+  <div class="journal-view hidden" id="view-journal">
+    <div class="entry-list" id="entry-list"></div>
+    <div class="entry-editor" id="entry-editor">
+      <div class="empty-state"><div style="font-size:36px">{ }</div><div>select or create an entry</div></div>
+    </div>
   </div>
+
+</div>
 </div>
 <div class="toast" id="toast">// saved</div>
+
 <script>
-let notes=[];let cur=null;let st=null;
-try{notes=JSON.parse(localStorage.getItem('lj3')||'[]');}catch(e){}
-const TIERS=['T0 — W0: dev setup','T1 — W1: python basics','T1 — W2: data structures','T1 — W3: OOP & classes','T1 — W4: async python','T2 — W7: FastAPI','T3 — W11: prompting','T4 — W16: RAG','T5 — W21: fine-tuning','T6 — W24: agents','T7 — W31: shipping'];
-function save(){localStorage.setItem('lj3',JSON.stringify(notes));const t=document.getElementById('toast');t.classList.add('show');clearTimeout(st);st=setTimeout(()=>t.classList.remove('show'),1400);}
+let notes=[];let cur=null;let st=null;let actChart=null;let moodChart=null;
+try{notes=JSON.parse(localStorage.getItem('lj4')||'[]');}catch(e){}
+
+const TIERS=[
+  {id:'T0',label:'T0 — Dev setup',col:'#8b949e',weeks:1},
+  {id:'T1',label:'T1 — Python',col:'#7ee787',weeks:6},
+  {id:'T2',label:'T2 — APIs',col:'#58a6ff',weeks:4},
+  {id:'T3',label:'T3 — Prompting',col:'#a371f7',weeks:5},
+  {id:'T4',label:'T4 — RAG',col:'#ffa657',weeks:5},
+  {id:'T5',label:'T5 — Fine-tuning',col:'#f78166',weeks:3},
+  {id:'T6',label:'T6 — Agents',col:'#56d364',weeks:7},
+  {id:'T7',label:'T7 — Products',col:'#d2a8ff',weeks:5},
+];
+
+const TIER_OPTS=['T0 — W0: dev setup','T1 — W1: python basics','T1 — W2: data structures','T1 — W3: OOP','T1 — W4: async','T2 — W7: FastAPI','T3 — W11: prompting','T4 — W16: RAG','T5 — W21: fine-tuning','T6 — W24: agents','T7 — W31: shipping'];
+
+function save(){localStorage.setItem('lj4',JSON.stringify(notes));const t=document.getElementById('toast');t.classList.add('show');clearTimeout(st);st=setTimeout(()=>t.classList.remove('show'),1400);}
 function today(){return new Date().toISOString().split('T')[0];}
 function fmtDate(d){return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
-function streak(){if(!notes.length)return 0;const dates=[...new Set(notes.map(n=>n.date))].sort().reverse();const now=new Date(today());let s=0;for(let i=0;i<dates.length;i++){const diff=Math.round((now-new Date(dates[i]+'T00:00:00'))/864e5);if(diff===i||diff===i+1)s++;else break;}return s;}
-function weekProg(){if(!notes.length)return 0;const map={'T0':0,'T1':6,'T2':10,'T3':15,'T4':20,'T5':23,'T6':30,'T7':35};const t=(notes[0].tier||'T0').split('—')[0].trim();return Math.min(Math.round(((map[t]||0)/78)*100),100);}
-function newEntry(){const n={id:Date.now(),date:today(),tier:'T1 — W1: python basics',title:'',learned:'',built:'',commands:'',confused:'',tomorrow:'',mood:''};notes.unshift(n);save();renderSB();openNote(n.id);}
-function openNote(id){cur=id;renderSB();renderContent();}
-function delEntry(){if(!cur)return;if(!confirm('delete this entry?'))return;notes=notes.filter(n=>n.id!==cur);cur=notes.length?notes[0].id:null;save();renderSB();renderContent();}
-function updField(field,val){const n=notes.find(x=>x.id===cur);if(n){n[field]=val;save();if(field==='title'||field==='tier')renderSB();}}
-function setMood(m){const n=notes.find(x=>x.id===cur);if(n){n.mood=m;save();renderContent();}}
-function renderSB(){const s=streak();document.getElementById('streak-n').textContent=s;document.getElementById('streak-msg').textContent=s===0?'start today':s<3?'keep going!':s<7?'on a roll!':'unstoppable!';const el=document.getElementById('sb-list');if(!notes.length){el.innerHTML='<div style="padding:16px;font-size:11px;color:#484f58">no entries yet</div>';return;}el.innerHTML=notes.map(n=>`<div class="sb-item${n.id===cur?' active':''}" onclick="openNote(${n.id})"><div class="si-date">${fmtDate(n.date)}</div><div class="si-title">${n.title||'untitled entry'}</div><div class="si-tier">${n.tier.split(':')[0]}</div></div>`).join('');}
-function renderContent(){const el=document.getElementById('content');if(!cur||!notes.length){el.innerHTML='<div class="empty"><div style="font-size:40px">{ }</div><div>create a new entry to start</div></div>';return;}const n=notes.find(x=>x.id===cur);if(!n)return;const cmds=n.commands?n.commands.split(',').map(c=>c.trim()).filter(Boolean):[];const totalCmds=notes.reduce((a,x)=>a+(x.commands?x.commands.split(',').filter(c=>c.trim()).length:0),0);const wp=weekProg();const moods=[{k:'crushing',l:'crushing it'},{k:'solid',l:'solid day'},{k:'okay',l:'got through it'},{k:'struggled',l:'struggled'}];document.getElementById('tier-sel').value=n.tier;document.getElementById('t-date').textContent=fmtDate(n.date);el.innerHTML=`<input class="note-title" placeholder="// what did you build today?" value="${n.title||''}" oninput="updField('title',this.value)"><div class="stats"><div class="stat"><div class="stat-n">${notes.length}</div><div class="stat-l">days logged</div></div><div class="stat"><div class="stat-n">${totalCmds}</div><div class="stat-l">commands</div></div><div class="stat"><div class="stat-n">${wp}%</div><div class="stat-l">roadmap</div></div></div><div class="prog-label"><span>roadmap progress</span><span style="color:#58a6ff">${wp}% of 78 weeks</span></div><div class="prog-track"><div class="prog-fill" style="width:${wp}%"></div></div><div class="sec"><div class="sec-label"><span class="dot" style="background:#58a6ff"></span>what i learned</div><textarea placeholder="// explain in your own words." oninput="updField('learned',this.value)">${n.learned||''}</textarea></div><div class="sec"><div class="sec-label"><span class="dot" style="background:#7ee787"></span>what i built</div><textarea style="min-height:50px" placeholder="// what did you actually create?" oninput="updField('built',this.value)">${n.built||''}</textarea></div><div class="sec"><div class="sec-label"><span class="dot" style="background:#a371f7"></span>commands used</div><textarea style="min-height:50px" placeholder="// git init, pip install, python3 ..." oninput="updField('commands',this.value)">${n.commands||''}</textarea>${cmds.length?`<div class="cmd-tags">${cmds.map(c=>`<span class="cmd-tag">${c}</span>`).join('')}</div>`:''}</div><div class="divider"></div><div class="sec"><div class="sec-label"><span class="dot" style="background:#f78166"></span>still confused about</div><textarea style="min-height:50px" placeholder="// what didn't click?" oninput="updField('confused',this.value)">${n.confused||''}</textarea></div><div class="sec"><div class="sec-label"><span class="dot" style="background:#ffa657"></span>tomorrow's goal</div><textarea style="min-height:50px" placeholder="// one thing to accomplish next session" oninput="updField('tomorrow',this.value)">${n.tomorrow||''}</textarea></div><div class="sec"><div class="sec-label">energy level</div><div class="mood-row">${moods.map(m=>`<button class="mood-btn${n.mood===m.k?' on':''}" onclick="setMood('${m.k}')">${m.l}</button>`).join('')}</div></div>`;}
-if(notes.length){cur=notes[0].id;}
-renderSB();renderContent();
+
+function calcStreak(){
+  if(!notes.length)return 0;
+  const dates=[...new Set(notes.map(n=>n.date))].sort().reverse();
+  const now=new Date(today());
+  let s=0;
+  for(let i=0;i<dates.length;i++){
+    const diff=Math.round((now-new Date(dates[i]+'T00:00:00'))/864e5);
+    if(diff===i||diff===i+1)s++;else break;
+  }
+  return s;
+}
+
+function weekProg(){
+  if(!notes.length)return 0;
+  const map={'T0':1,'T1':7,'T2':11,'T3':16,'T4':21,'T5':24,'T6':31,'T7':36};
+  const last=notes[0]?.tier||'T0';
+  const t=last.split('—')[0].trim().split(' ')[0];
+  return Math.min(Math.round(((map[t]||0)/78)*100),100);
+}
+
+function showView(v){
+  document.getElementById('view-dashboard').classList.toggle('hidden',v!=='dashboard');
+  document.getElementById('view-journal').classList.toggle('hidden',v!=='journal');
+  document.getElementById('nav-dash').classList.toggle('active',v==='dashboard');
+  document.getElementById('nav-journal').classList.toggle('active',v==='journal');
+  if(v==='dashboard')renderDashboard();
+  if(v==='journal')renderJournal();
+}
+
+function newEntry(){
+  const n={id:Date.now(),date:today(),tier:'T1 — W1: python basics',title:'',learned:'',built:'',commands:'',confused:'',tomorrow:'',mood:''};
+  notes.unshift(n);save();cur=n.id;
+  showView('journal');
+  renderJournal();
+  renderNavEntries();
+}
+
+function openNote(id){cur=id;renderEditor();renderEntryList();}
+
+function delNote(){
+  if(!cur)return;
+  if(!confirm('delete this entry?'))return;
+  notes=notes.filter(n=>n.id!==cur);
+  cur=notes.length?notes[0].id:null;
+  save();renderJournal();renderNavEntries();renderDashboard();
+}
+
+function updField(field,val){
+  const n=notes.find(x=>x.id===cur);
+  if(n){n[field]=val;save();if(field==='title'||field==='tier'){renderNavEntries();renderEntryList();}}
+}
+
+function setMood(m){const n=notes.find(x=>x.id===cur);if(n){n.mood=m;save();renderEditor();}}
+
+function renderNavEntries(){
+  const el=document.getElementById('nav-entries');
+  el.innerHTML=notes.slice(0,5).map(n=>`<div class="nav-item${n.id===cur?' active':''}" onclick="openNote(${n.id});showView('journal')">
+    <span class="nav-icon" style="font-size:10px">📝</span>
+    <span style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.title||'untitled'}</span>
+  </div>`).join('');
+}
+
+function renderEntryList(){
+  const el=document.getElementById('entry-list');
+  if(!notes.length){el.innerHTML='<div style="padding:16px;font-size:11px;color:var(--text3)">no entries yet</div>';return;}
+  el.innerHTML=notes.map(n=>`<div class="entry-item${n.id===cur?' active':''}" onclick="openNote(${n.id})">
+    <div class="ei-date">${fmtDate(n.date)}</div>
+    <div class="ei-title">${n.title||'untitled entry'}</div>
+    <div class="ei-tier">${n.tier.split(':')[0]}</div>
+  </div>`).join('');
+}
+
+function renderEditor(){
+  const el=document.getElementById('entry-editor');
+  if(!cur||!notes.length){el.innerHTML='<div class="empty-state"><div style="font-size:36px">{ }</div><div>select or create an entry</div></div>';return;}
+  const n=notes.find(x=>x.id===cur);if(!n)return;
+  const cmds=n.commands?n.commands.split(',').map(c=>c.trim()).filter(Boolean):[];
+  const moods=[{k:'crushing',l:'🔥 crushing it'},{k:'solid',l:'💪 solid day'},{k:'okay',l:'😐 got through it'},{k:'struggled',l:'😵 struggled'}];
+  el.innerHTML=`
+  <div class="editor-toolbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <select class="tier-sel" onchange="updField('tier',this.value)">${TIER_OPTS.map(t=>`<option${t===n.tier?' selected':''}>${t}</option>`).join('')}</select>
+      <span style="font-size:11px;color:var(--text3)">${fmtDate(n.date)}</span>
+    </div>
+    <button class="del-btn" onclick="delNote()">rm entry</button>
+  </div>
+  <div class="editor-content">
+    <input class="note-title-input" placeholder="// what did you build today?" value="${n.title||''}" oninput="updField('title',this.value)">
+    <div class="sec">
+      <div class="sec-label"><span class="dot" style="background:var(--blue)"></span>what i learned</div>
+      <textarea placeholder="// explain in your own words. no copy paste." oninput="updField('learned',this.value)">${n.learned||''}</textarea>
+    </div>
+    <div class="sec">
+      <div class="sec-label"><span class="dot" style="background:var(--green)"></span>what i built</div>
+      <textarea style="min-height:50px" placeholder="// what did you actually create?" oninput="updField('built',this.value)">${n.built||''}</textarea>
+    </div>
+    <div class="sec">
+      <div class="sec-label"><span class="dot" style="background:var(--purple)"></span>commands used</div>
+      <textarea style="min-height:50px" placeholder="// git init, pip install, python3 ..." oninput="updField('commands',this.value)">${n.commands||''}</textarea>
+      ${cmds.length?`<div class="cmd-tags">${cmds.map(c=>`<span class="cmd-tag">${c}</span>`).join('')}</div>`:''}
+    </div>
+    <div class="divider"></div>
+    <div class="sec">
+      <div class="sec-label"><span class="dot" style="background:var(--red)"></span>still confused about</div>
+      <textarea style="min-height:50px" placeholder="// what didn't click?" oninput="updField('confused',this.value)">${n.confused||''}</textarea>
+    </div>
+    <div class="sec">
+      <div class="sec-label"><span class="dot" style="background:var(--orange)"></span>tomorrow's goal</div>
+      <textarea style="min-height:50px" placeholder="// one thing to accomplish next session" oninput="updField('tomorrow',this.value)">${n.tomorrow||''}</textarea>
+    </div>
+    <div class="sec">
+      <div class="sec-label">energy level</div>
+      <div class="mood-row">${moods.map(m=>`<button class="mood-btn${n.mood===m.k?' on':''}" onclick="setMood('${m.k}')">${m.l}</button>`).join('')}</div>
+    </div>
+  </div>`;
+}
+
+function renderJournal(){renderEntryList();renderEditor();}
+
+function renderDashboard(){
+  const s=calcStreak();
+  const wp=weekProg();
+  const totalCmds=notes.reduce((a,x)=>a+(x.commands?x.commands.split(',').filter(c=>c.trim()).length:0),0);
+  document.getElementById('streak-n').textContent=s;
+  document.getElementById('streak-msg').textContent=s===0?'start today':s<3?'keep going!':s<7?'on a roll! 🔥':'unstoppable! ⚡';
+  document.getElementById('kpi-days').textContent=notes.length;
+  document.getElementById('kpi-cmds').textContent=totalCmds;
+  document.getElementById('kpi-streak').textContent=s;
+  document.getElementById('kpi-prog').textContent=wp+'%';
+  document.getElementById('kpi-days-c').textContent=notes.length>0?'last: '+fmtDate(notes[0].date):'no entries yet';
+  document.getElementById('kpi-streak-c').textContent=s>0?'keep it going!':'log today!';
+
+  // Tier bars
+  const tierEl=document.getElementById('tier-bars');
+  tierEl.innerHTML=TIERS.map(t=>{
+    const count=notes.filter(n=>n.tier&&n.tier.startsWith(t.id)).length;
+    const pct=Math.min(Math.round((count/t.weeks)*100),100);
+    return `<div class="tier-row">
+      <div class="tier-name" style="color:${t.col}">${t.label}</div>
+      <div class="tier-track"><div class="tier-fill" style="width:${pct}%;background:${t.col}"></div></div>
+      <div class="tier-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  // Calendar
+  const calEl=document.getElementById('cal-grid');
+  const loggedDates=new Set(notes.map(n=>n.date));
+  const td=today();
+  let calHtml='';
+  for(let i=59;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    const isToday=ds===td;
+    const isDone=loggedDates.has(ds);
+    calHtml+=`<div class="cal-day${isToday?' today':isDone?' done':''}" title="${ds}"></div>`;
+  }
+  calEl.innerHTML=calHtml;
+
+  // Activity chart
+  const last7=[];const last7l=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    last7.push(d.toLocaleDateString('en-IN',{weekday:'short'}));
+    last7l.push(notes.filter(n=>n.date===ds).length);
+  }
+  if(actChart)actChart.destroy();
+  const actCtx=document.getElementById('chart-activity').getContext('2d');
+  actChart=new Chart(actCtx,{type:'bar',data:{labels:last7,datasets:[{data:last7l,backgroundColor:'#1f2d4a',borderColor:'#58a6ff',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#21262d'},ticks:{color:'#8b949e',font:{size:10}}},y:{grid:{color:'#21262d'},ticks:{color:'#8b949e',font:{size:10},stepSize:1}}}}});
+
+  // Mood chart
+  const moodCounts={crushing:0,solid:0,okay:0,struggled:0};
+  notes.forEach(n=>{if(n.mood&&moodCounts[n.mood]!==undefined)moodCounts[n.mood]++;});
+  if(moodChart)moodChart.destroy();
+  const moodCtx=document.getElementById('chart-mood').getContext('2d');
+  moodChart=new Chart(moodCtx,{type:'doughnut',data:{labels:['Crushing it','Solid day','Got through it','Struggled'],datasets:[{data:Object.values(moodCounts),backgroundColor:['#7ee787','#58a6ff','#ffa657','#f85149'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:10},boxWidth:10}}}}});
+}
+
+// Seed data
+if(!notes.length){
+  notes=[
+    {id:2,date:'2026-05-03',tier:'T1 — W1: python basics',title:'variables, strings, lists & type casting',learned:'Variables are containers that store values in RAM. Python has 4 main types: str, int, bool, float. Type casting converts between types using str(), int(), float(). Strings can be indexed and sliced. F-strings make formatting clean. Lists are ordered and mutable.',built:'variables.py and lists.py — practiced all data types, string methods, list methods',commands:'nano variables.py, nano lists.py, python3 variables.py, python3 lists.py',confused:'nothing major today',tomorrow:'loops and functions',mood:'solid'},
+    {id:1,date:'2026-04-28',tier:'T0 — W0: dev setup',title:'built first AI chatbot with groq API',learned:'WSL gives Linux inside Windows. pip is the app store. venv = isolated clean room. API key = ID card. .env keeps secrets safe. git takes snapshots, GitHub stores them.',built:'working multi-turn AI chatbot (chat.py). pushed to GitHub: darkstack-labs/groq-chatbot',commands:'wsl --install, sudo apt update, pip install groq anthropic, nano chat.py, python3 chat.py, git init, git push',confused:'how virtual environments work internally',tomorrow:'start T1 python',mood:'solid'}
+  ];
+  save();
+}
+
+if(notes.length)cur=notes[0].id;
+renderNavEntries();
+renderDashboard();
 </script>
 </body>
 </html>
