@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>~/learning-journal</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0d1117; color: #c9d1d9; font-family: monospace; display: flex; height: 100vh; }
+    .sidebar { width: 250px; background: #010409; border-right: 1px solid #21262d; display: flex; flex-direction: column; }
+    .sb-top { padding: 16px; border-bottom: 1px solid #21262d; }
+    .sb-logo { color: #58a6ff; font-size: 14px; }
+    .sb-sub { color: #484f58; font-size: 11px; margin-top: 4px; }
+    .streak { background: #0d1117; border: 1px solid #21262d; border-radius: 6px; padding: 8px; margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+    .streak-n { color: #f78166; font-size: 20px; font-weight: bold; }
+    .streak-l { color: #484f58; font-size: 10px; }
+    .new-btn { margin: 10px 16px; padding: 8px; background: transparent; border: 1px solid #388bfd; color: #58a6ff; border-radius: 6px; cursor: pointer; font-family: monospace; font-size: 12px; width: calc(100% - 32px); }
+    .new-btn:hover { background: #1f2d4a; }
+    .sb-list { flex: 1; overflow-y: auto; padding: 8px; }
+    .sb-item { padding: 10px; border-radius: 6px; cursor: pointer; margin-bottom: 4px; border: 1px solid transparent; }
+    .sb-item:hover { background: #161b22; }
+    .sb-item.active { background: #161b22; border-color: #30363d; }
+    .si-date { font-size: 10px; color: #484f58; }
+    .si-title { font-size: 12px; color: #c9d1d9; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .si-tier { font-size: 10px; color: #388bfd; margin-top: 2px; }
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .toolbar { padding: 10px 20px; border-bottom: 1px solid #21262d; display: flex; align-items: center; justify-content: space-between; }
+    .tier-sel { background: #161b22; border: 1px solid #30363d; color: #58a6ff; font-family: monospace; font-size: 11px; padding: 4px 8px; border-radius: 6px; }
+    .t-date { color: #484f58; font-size: 11px; }
+    .del-btn { background: transparent; border: 1px solid #30363d; color: #f85149; font-family: monospace; font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+    .del-btn:hover { background: #2d1113; }
+    .content { flex: 1; overflow-y: auto; padding: 24px 32px; }
+    .note-title { background: transparent; border: none; outline: none; color: #e6edf3; font-size: 22px; font-family: monospace; width: 100%; margin-bottom: 20px; }
+    .note-title::placeholder { color: #30363d; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .stat { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 12px; text-align: center; }
+    .stat-n { font-size: 22px; color: #e6edf3; }
+    .stat-l { font-size: 10px; color: #484f58; margin-top: 2px; }
+    .prog-label { display: flex; justify-content: space-between; font-size: 10px; color: #484f58; margin-bottom: 6px; }
+    .prog-track { height: 4px; background: #21262d; border-radius: 2px; margin-bottom: 20px; }
+    .prog-fill { height: 100%; background: linear-gradient(90deg, #388bfd, #58a6ff); border-radius: 2px; transition: width .4s; }
+    .sec { margin-bottom: 18px; }
+    .sec-label { font-size: 10px; color: #484f58; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+    textarea { width: 100%; background: #161b22; border: 1px solid #21262d; border-radius: 6px; padding: 10px 12px; color: #c9d1d9; font-family: monospace; font-size: 12px; resize: none; line-height: 1.7; min-height: 65px; }
+    textarea:focus { outline: none; border-color: #388bfd; }
+    textarea::placeholder { color: #30363d; }
+    .cmd-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+    .cmd-tag { background: #161b22; border: 1px solid #30363d; color: #7ee787; font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+    .divider { height: 1px; background: #21262d; margin: 16px 0; }
+    .mood-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mood-btn { background: transparent; border: 1px solid #21262d; color: #8b949e; font-family: monospace; font-size: 11px; padding: 5px 12px; border-radius: 6px; cursor: pointer; }
+    .mood-btn:hover { border-color: #388bfd; color: #58a6ff; }
+    .mood-btn.on { background: #1f2d4a; border-color: #388bfd; color: #58a6ff; }
+    .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #30363d; gap: 10px; }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: #1f2d4a; color: #58a6ff; border: 1px solid #388bfd; padding: 8px 16px; border-radius: 6px; font-size: 12px; opacity: 0; transition: opacity .3s; pointer-events: none; }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo">~/learning-journal</div>
+    <div class="sb-sub">0 → 0.1% roadmap</div>
+    <div class="streak">
+      <div>
+        <div class="streak-n" id="streak-n">0</div>
+        <div class="streak-l">day streak</div>
+      </div>
+      <div id="streak-msg" style="font-size:11px;color:#7ee787">start today</div>
+    </div>
+    <button class="new-btn" onclick="newEntry()">+ new entry</button>
+  </div>
+  <div class="sb-list" id="sb-list"></div>
+</div>
+<div class="main">
+  <div class="toolbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <select class="tier-sel" id="tier-sel" onchange="updField('tier',this.value)">
+        <option>T0 — W0: dev setup</option>
+        <option>T1 — W1: python basics</option>
+        <option>T1 — W2: data structures</option>
+        <option>T1 — W3: OOP & classes</option>
+        <option>T1 — W4: async python</option>
+        <option>T2 — W7: FastAPI</option>
+        <option>T3 — W11: prompting</option>
+        <option>T4 — W16: RAG</option>
+        <option>T5 — W21: fine-tuning</option>
+        <option>T6 — W24: agents</option>
+        <option>T7 — W31: shipping</option>
+      </select>
+      <span class="t-date" id="t-date"></span>
+    </div>
+    <button class="del-btn" onclick="delEntry()">rm entry</button>
+  </div>
+  <div class="content" id="content">
+    <div class="empty"><div style="font-size:40px">{ }</div><div>create a new entry to start</div></div>
+  </div>
+</div>
+<div class="toast" id="toast">// saved</div>
+<script>
+let notes=[];let cur=null;let st=null;
+try{notes=JSON.parse(localStorage.getItem('lj3')||'[]');}catch(e){}
+const TIERS=['T0 — W0: dev setup','T1 — W1: python basics','T1 — W2: data structures','T1 — W3: OOP & classes','T1 — W4: async python','T2 — W7: FastAPI','T3 — W11: prompting','T4 — W16: RAG','T5 — W21: fine-tuning','T6 — W24: agents','T7 — W31: shipping'];
+function save(){localStorage.setItem('lj3',JSON.stringify(notes));const t=document.getElementById('toast');t.classList.add('show');clearTimeout(st);st=setTimeout(()=>t.classList.remove('show'),1400);}
+function today(){return new Date().toISOString().split('T')[0];}
+function fmtDate(d){return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
+function streak(){if(!notes.length)return 0;const dates=[...new Set(notes.map(n=>n.date))].sort().reverse();const now=new Date(today());let s=0;for(let i=0;i<dates.length;i++){const diff=Math.round((now-new Date(dates[i]+'T00:00:00'))/864e5);if(diff===i||diff===i+1)s++;else break;}return s;}
+function weekProg(){if(!notes.length)return 0;const map={'T0':0,'T1':6,'T2':10,'T3':15,'T4':20,'T5':23,'T6':30,'T7':35};const t=(notes[0].tier||'T0').split('—')[0].trim();return Math.min(Math.round(((map[t]||0)/78)*100),100);}
+function newEntry(){const n={id:Date.now(),date:today(),tier:'T1 — W1: python basics',title:'',learned:'',built:'',commands:'',confused:'',tomorrow:'',mood:''};notes.unshift(n);save();renderSB();openNote(n.id);}
+function openNote(id){cur=id;renderSB();renderContent();}
+function delEntry(){if(!cur)return;if(!confirm('delete this entry?'))return;notes=notes.filter(n=>n.id!==cur);cur=notes.length?notes[0].id:null;save();renderSB();renderContent();}
+function updField(field,val){const n=notes.find(x=>x.id===cur);if(n){n[field]=val;save();if(field==='title'||field==='tier')renderSB();}}
+function setMood(m){const n=notes.find(x=>x.id===cur);if(n){n.mood=m;save();renderContent();}}
+function renderSB(){const s=streak();document.getElementById('streak-n').textContent=s;document.getElementById('streak-msg').textContent=s===0?'start today':s<3?'keep going!':s<7?'on a roll!':'unstoppable!';const el=document.getElementById('sb-list');if(!notes.length){el.innerHTML='<div style="padding:16px;font-size:11px;color:#484f58">no entries yet</div>';return;}el.innerHTML=notes.map(n=>`<div class="sb-item${n.id===cur?' active':''}" onclick="openNote(${n.id})"><div class="si-date">${fmtDate(n.date)}</div><div class="si-title">${n.title||'untitled entry'}</div><div class="si-tier">${n.tier.split(':')[0]}</div></div>`).join('');}
+function renderContent(){const el=document.getElementById('content');if(!cur||!notes.length){el.innerHTML='<div class="empty"><div style="font-size:40px">{ }</div><div>create a new entry to start</div></div>';return;}const n=notes.find(x=>x.id===cur);if(!n)return;const cmds=n.commands?n.commands.split(',').map(c=>c.trim()).filter(Boolean):[];const totalCmds=notes.reduce((a,x)=>a+(x.commands?x.commands.split(',').filter(c=>c.trim()).length:0),0);const wp=weekProg();const moods=[{k:'crushing',l:'crushing it'},{k:'solid',l:'solid day'},{k:'okay',l:'got through it'},{k:'struggled',l:'struggled'}];document.getElementById('tier-sel').value=n.tier;document.getElementById('t-date').textContent=fmtDate(n.date);el.innerHTML=`<input class="note-title" placeholder="// what did you build today?" value="${n.title||''}" oninput="updField('title',this.value)"><div class="stats"><div class="stat"><div class="stat-n">${notes.length}</div><div class="stat-l">days logged</div></div><div class="stat"><div class="stat-n">${totalCmds}</div><div class="stat-l">commands</div></div><div class="stat"><div class="stat-n">${wp}%</div><div class="stat-l">roadmap</div></div></div><div class="prog-label"><span>roadmap progress</span><span style="color:#58a6ff">${wp}% of 78 weeks</span></div><div class="prog-track"><div class="prog-fill" style="width:${wp}%"></div></div><div class="sec"><div class="sec-label"><span class="dot" style="background:#58a6ff"></span>what i learned</div><textarea placeholder="// explain in your own words." oninput="updField('learned',this.value)">${n.learned||''}</textarea></div><div class="sec"><div class="sec-label"><span class="dot" style="background:#7ee787"></span>what i built</div><textarea style="min-height:50px" placeholder="// what did you actually create?" oninput="updField('built',this.value)">${n.built||''}</textarea></div><div class="sec"><div class="sec-label"><span class="dot" style="background:#a371f7"></span>commands used</div><textarea style="min-height:50px" placeholder="// git init, pip install, python3 ..." oninput="updField('commands',this.value)">${n.commands||''}</textarea>${cmds.length?`<div class="cmd-tags">${cmds.map(c=>`<span class="cmd-tag">${c}</span>`).join('')}</div>`:''}</div><div class="divider"></div><div class="sec"><div class="sec-label"><span class="dot" style="background:#f78166"></span>still confused about</div><textarea style="min-height:50px" placeholder="// what didn't click?" oninput="updField('confused',this.value)">${n.confused||''}</textarea></div><div class="sec"><div class="sec-label"><span class="dot" style="background:#ffa657"></span>tomorrow's goal</div><textarea style="min-height:50px" placeholder="// one thing to accomplish next session" oninput="updField('tomorrow',this.value)">${n.tomorrow||''}</textarea></div><div class="sec"><div class="sec-label">energy level</div><div class="mood-row">${moods.map(m=>`<button class="mood-btn${n.mood===m.k?' on':''}" onclick="setMood('${m.k}')">${m.l}</button>`).join('')}</div></div>`;}
+if(notes.length){cur=notes[0].id;}
+renderSB();renderContent();
+</script>
+</body>
+</html>
